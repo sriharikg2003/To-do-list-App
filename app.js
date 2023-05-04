@@ -101,9 +101,33 @@ app.get("/about", function (req, res) {
 });
 
 app.post("/delete", function (req, res) {
-  Item.deleteOne({ name: req.body.check }).then(() => {
-  });
-  res.redirect("/");
+
+  checkID = req.body.checkID;
+
+  console.log(req.body)
+
+  if (req.body.koli == "Today") {
+    Item.deleteOne({ name: req.body.check }).then(() => {
+    });
+    res.redirect("/");
+    console.log("*****************************");
+  }
+
+  else {
+
+    console.log("delete");
+    
+    routeListModel.findOneAndUpdate({name :req.body.koli  },{$pull : {List :{name : req.body.checkID}}}).then(()=> {console.log();})
+
+
+    res.redirect("/"+req.body.koli );
+
+
+    
+  //   routeListModel.findByIdAndUpdate({ name: req.body.koli }, { $pull: { List: { name: checkID } } }).then(() => {res.redirect("/" + req.body.koli);});
+
+    
+  }
 })
 
 
@@ -155,40 +179,14 @@ app.post("/:route", function (req, res) {
   var list = [];
   routeListModel.findOne({ name: directory }).then(it => {
 
+    it.List.push(Item({
+      name: req.body.newItem,
+    }));
 
-    for (i in it.List) {
-      list.push( Item({
-        name: it.List[i].name
-      })
-      );
-
-    }
-
-    // routeListModel.updateOne({ name: directory }, { List: list }).then(newiwt => {
-    //   res.redirect("/" + directory);
-    // });
-
-
-    
-  list.push( Item({
-    name: req.body.newItem,
-  }))
-
-  
-  routeListModel.updateOne({ name: directory }, { List: list }).then(newiwt => {
-      res.redirect("/" + directory);
-    });
-
-
-  // res.redirect("/");
-
+    it.save();
+    res.redirect("/" + directory);
 
   });
-
-  
-
-
-
 
 });
 
